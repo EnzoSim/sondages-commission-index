@@ -125,18 +125,24 @@ def _(current_year):
 
     # Ce fork tourne chaque heure : seule l'année en cours change, avec la précédente pour le
     # passage de janvier. Les autres restent celles de base.csv, ce qui fait 4 requêtes par
-    # passage au lieu de 22 sur le site de la Commission. On ajoute à ce qui est connu : une
-    # page qui répond mal n'efface rien.
-    fresh = pd.concat(
+    # passage au lieu de 22 sur le site de la Commission. Une année relue remplace ce qu'on en
+    # sait, car une notice republiée change d'adresse, sauf si sa page revient tronquée.
+    _years = [current_year - 1, current_year]
+    _known = pd.read_csv("base.csv")
+    _pages = pd.concat(
         [
-            pd.DataFrame.from_records(list_year(year)).assign(year=year).iloc[::-1]
-            for year in range(current_year - 1, current_year + 1)
+            pd.DataFrame.from_records(list_year(y)).assign(year=y).iloc[::-1]
+            for y in _years
         ]
     ).assign(categorie=lambda df: df["name"].apply(categorize_election))
-    index = (
-        pd.concat([pd.read_csv("base.csv"), fresh])
-        .drop_duplicates(subset="href", keep="last")
-        .sort_values("year", kind="stable")
+
+    def _latest(y):
+        fresh = _pages[_pages["year"] == y]
+        old = _known[_known["year"] == y]
+        return fresh if len(fresh) >= len(old) else old
+
+    index = pd.concat(
+        [_known[~_known["year"].isin(_years)], *[_latest(y) for y in _years]]
     )
     return (index,)
 
