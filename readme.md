@@ -1,3 +1,5 @@
+> **Fork de [MieuxVoter/sondages-commission-index](https://github.com/MieuxVoter/sondages-commission-index)**, lui-même issu de [nsppolls/sondages-commission-index](https://github.com/nsppolls/sondages-commission-index), à qui revient ce travail. Il tourne chaque heure au lieu d'une fois par jour pour alimenter [rolling-2027](https://github.com/EnzoSim/rolling-2027), et ne relit que l'année en cours et la précédente pour ménager le site de la Commission.
+
 # NSPPolls · commission des sondages
 
 Ce dépôt contient :

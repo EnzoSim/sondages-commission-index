@@ -4,9 +4,16 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-  # Runs the job automatically at 6:00 UTC every day
+  # Filet de secours : le rythme horaire vient du serveur de Ballottage, qui appelle
+  # workflow_dispatch (server/poll-watch.js de EnzoSim/second-tour).
   schedule:
     - cron: "0 6 * * *"
+
+# Le cron et l'appel horaire peuvent tomber ensemble : l'un attend l'autre, pour ne pas
+# se disputer le push.
+concurrency:
+  group: update-catalog
+  cancel-in-progress: false
 
 jobs:
   scrap_and_commit:

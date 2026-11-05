@@ -123,12 +123,21 @@ def _(current_year):
         # Default to None if no match
         return None
 
-    index = pd.concat(
+    # Ce fork tourne chaque heure : seule l'année en cours change, avec la précédente pour le
+    # passage de janvier. Les autres restent celles de base.csv, ce qui fait 4 requêtes par
+    # passage au lieu de 22 sur le site de la Commission. On ajoute à ce qui est connu : une
+    # page qui répond mal n'efface rien.
+    fresh = pd.concat(
         [
             pd.DataFrame.from_records(list_year(year)).assign(year=year).iloc[::-1]
-            for year in range(2016, current_year + 1)
+            for year in range(current_year - 1, current_year + 1)
         ]
     ).assign(categorie=lambda df: df["name"].apply(categorize_election))
+    index = (
+        pd.concat([pd.read_csv("base.csv"), fresh])
+        .drop_duplicates(subset="href", keep="last")
+        .sort_values("year", kind="stable")
+    )
     return (index,)
 
 
